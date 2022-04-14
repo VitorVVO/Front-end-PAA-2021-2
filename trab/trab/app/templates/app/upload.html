@@ -1,0 +1,67 @@
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="pt_BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+
+    <link rel="icon" href="{% static 'images/logo-icon.png' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/animations.css' %}" />
+    <link rel="stylesheet" href=" {% static 'css/upload.css' %}" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="nav_bar_back">
+      <div class="nav_bar">
+        <div class="nav_title">
+          <img src="{% static 'images/map-marker.svg' %}" alt="Happy">
+          <h1 class="title">Projeto PAA - Só os brabos</h1>
+        </div>
+        <div class="nav_buttons">
+          <a class="button_nav" href="/"><label>Upload de Arquivos</label></a>
+          <a class="button_nav" href="/simulacao"><label>Simulação</label></a>
+        </div>
+      </div>
+    </nav>
+    <div class="page-home animate-up">
+      <main class="uploads">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="div_up"> 
+            <label>Carros:</label>
+              <input type="file" name="carros" id="carros" class="button"></input>
+              {%if url %}
+                <a class="arq" href="{{ url }}">Editar</a>
+              {% endif %}
+          </div>
+          <div class="div_up">
+          <label>Clientes:</label>
+            <input type="file" name="clientes" id="clientes" class="button"></input>
+            {%if url2 %}
+              <a class="arq" href="{{ url2 }}">Editar</a>
+            {% endif %}
+          </div>
+          <div class= "div_up">
+            <label>Grafos:</label>
+            <input type="file"name="grafos" id="grafos" class="button"></input>
+            {%if url3 %}
+              <a class="arq" href="{{ url3 }}">Editar</a>
+            {% endif %}
+          </div>
+          <button type="submit">Enviar</button>
+        </form>
+      </main>
+    </div>
+  </body>
+
+
+</html>
+{% endblock %}
