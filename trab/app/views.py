@@ -1,3 +1,4 @@
+from email.policy import default
 from multiprocessing import context
 from django.shortcuts import render
 from django.views.generic import TemplateView
@@ -41,5 +42,6 @@ def tabelas(request):
     grafos = Grafo.objects.all()
     return render(request, 'app/tabelas.html', {'carros':carros, 'clientes':clientes, 'grafos': grafos})
 
-def simulacao(request):
-    return render(request, 'app/simulacao.html')
+def simulacao(request, imagem):
+    print(imagem)
+    return render(request, 'app/simulacao.html', {'imagem':imagem})

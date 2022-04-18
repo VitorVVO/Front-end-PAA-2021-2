@@ -26,14 +26,14 @@
         </div>
         <div class="nav_buttons">
           <a class="button_nav" href="/"><label>Upload de Arquivos</label></a>
-          <a class="button_nav" href="/simulacao"><label>Simulação</label></a>
+          <a class="button_nav" href="/simulacao/grafo"><label>Simulação</label></a>
         </div>
       </div>
     </nav>
     <div class="page-home animate-up">
       <main class="simulacao">
         <div class="grafo">
-          <img src="{% static 'images/grafo.png' %}" alt="Foto do grafo">
+          <img src="{% static 'images' %}/{{imagem}}.png" alt="Foto do grafo">
         </div>
       </main>
     </div>
@@ -41,12 +41,13 @@
       <main class="simulacao">
         <ul class="lista_clientes">
           <li style="display: flex">
+            
             <a class="clients">Cliente n1</a>
-            <a class="clients">Escolha n1</a>
-            <a class="clients">Escolha n1</a>
-            <a class="clients">Escolha n1</a>
-            <a class="clients">Escolha n1</a>
-            <a class="clients">Escolha n1</a>
+            <a class="clients" href="/simulacao/c1g1">Escolha n1</a>
+            <a class="clients" href="/simulacao/c1g2">Escolha n2</a>
+            <a class="clients" href="/simulacao/c1g3">Escolha n3</a>
+            <a class="clients">Escolha n4</a>
+            <a class="clients">Escolha n5</a> 
           </li>
           <li style="display: flex">
             <a class="clients">Cliente n1</a>
