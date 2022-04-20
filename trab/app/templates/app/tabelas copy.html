@@ -1,0 +1,80 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt_BR">
+
+<head>
+</head>
+
+<body>
+    <h1>TELA DAS TABELAS</h1>
+    {% block content %}
+    <ul class="table">
+        <table border="1">
+            <tr>
+                <td>ID Carro</td>
+                <td>Carro X</td>
+                <td>Carro Y</td>
+                <td>Aresta ID</td>
+            </tr>
+            {% for carro in carros %}
+            <tr>
+                <td>{{carro.carro_id}}</td>
+                <td>{{carro.loc_carro_x}}</td>
+                <td>{{carro.loc_carro_y}}</td>
+                <td>{{carro.aresta_id}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </ul>
+
+    <ul class="table">
+        <table border="1">
+            <tr>
+                <td>Aresta</td>
+                <td>Origem</td>
+                <td>Origem X</td>
+                <td>Origem Y</td>
+                <td>Destino</td>
+                <td>Destino X</td>
+                <td>Destino Y</td>
+                <td>Distancia KM</td>
+                <td>Velocidade KM</td>
+            </tr>
+            {% for grafo in grafos %}
+            <tr>
+                <td>{{grafo.aresta_n}}</td>
+                <td>{{grafo.v_origem}}</td>
+                <td>{{grafo.loc_v_origem_x}}</td>
+                <td>{{grafo.loc_v_origem_y}}</td>
+                <td>{{grafo.v_destino}}</td>
+                <td>{{grafo.loc_v_destino_x}}</td>
+                <td>{{grafo.loc_v_destino_y}}</td>
+                <td>{{grafo.distancia_km}}</td>
+                <td>{{grafo.velocidade_km_h}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </ul>
+    <ul class="table">
+        <table border="1">
+            <tr>
+                <td>Cliente ID</td>
+                <td>Cliente X</td>
+                <td>Cliente Y</td>
+                <td>Destino X</td>
+                <td>Destino Y</td>
+            </tr>
+            {% for cliente in clientes %}
+            <tr>
+                <td>{{cliente.cliente_id}}</td>
+                <td>{{cliente.loc_cliente_x}}</td>
+                <td>{{cliente.loc_cliente_y}}</td>
+                <td>{{cliente.dest_cliente_x}}</td>
+                <td>{{cliente.dest_cliente_y}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    
+    {% endblock %}
+</body>
