@@ -4,13 +4,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simulação</title>
+    <title>Home</title>
 
     <link rel="icon" href="{% static 'images/logo-icon.png' %}" />
 
     <link rel="stylesheet" href="{% static 'css/main.css' %}" />
     <link rel="stylesheet" href="{% static 'css/animations.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/simulacao.css' %}" />
+    <link rel="stylesheet" href=" {% static 'css/edit.css' %}" />
 
     <link
       href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
@@ -34,37 +34,17 @@
       </div>
     </nav>
     <div class="page-home animate-up">
-      <main class="simulacao">
-        <div class="grafo">
-          <img src="{% static 'images' %}/{{imagem}}.png" alt="Foto do grafo" />
+      <div class="div_1">
+        <h1 class="title_form">{{title}}:</h1>
+        <div class="div_2">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="div_form">{{ form.as_p}}</div>
+
+            <input class="button" type="submit" value="Salvar" />
+          </form>
         </div>
-      </main>
-    </div>
-    <div class="page-home animate-up">
-      <main class="simulacao">
-        <ul class="lista_clientes">
-          {% for cliente in clientes %}
-          <li style="display: flex">
-            <a class="clients">Cliente {{cliente.cliente_id}}</a>
-            <a class="clients" href="/simulacao/c{{cliente.cliente_id}}g1"
-              >Escolha n1</a
-            >
-            <a class="clients" href="/simulacao/c{{cliente.cliente_id}}g2"
-              >Escolha n2</a
-            >
-            <a class="clients" href="/simulacao/c{{cliente.cliente_id}}g3"
-              >Escolha n3</a
-            >
-            <a class="clients" href="/simulacao/c{{cliente.cliente_id}}g4"
-              >Escolha n4</a
-            >
-            <a class="clients" href="/simulacao/c{{cliente.cliente_id}}g5"
-              >Escolha n5</a
-            >
-          </li>
-          {% endfor %}
-        </ul>
-      </main>
+      </div>
     </div>
   </body>
 </html>
