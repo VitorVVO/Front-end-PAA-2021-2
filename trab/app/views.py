@@ -1,13 +1,12 @@
 from email.policy import default
 from multiprocessing import context
-from django.shortcuts import render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.views.generic import TemplateView
 from django.core.files.storage import FileSystemStorage
+from django.contrib import messages
 
-from app.forms import insere_dado
-from .models import Carro
-from .models import Cliente
-from .models import Grafo
+from .forms import *
+from .models import *
 
 # Create your views here.
 
@@ -40,8 +39,88 @@ def tabelas(request):
     carros = Carro.objects.all()
     clientes = Cliente.objects.all()
     grafos = Grafo.objects.all()
+
     return render(request, 'app/tabelas.html', {'carros':carros, 'clientes':clientes, 'grafos': grafos})
 
 def simulacao(request, imagem):
-    print(imagem)
-    return render(request, 'app/simulacao.html', {'imagem':imagem})
+    clientes = Cliente.objects.all().order_by('cliente_id')
+    return render(request, 'app/simulacao.html', {'imagem':imagem, 'clientes':clientes})
+
+
+def edit(request, tabela, id):
+    if(tabela == 'carro'):
+        carro = get_object_or_404(Carro, carro_id=id)
+        form = CarroForm(instance=carro)
+        title = 'Carro'
+
+    elif(tabela == 'cliente'):
+        cliente = get_object_or_404(Cliente, cliente_id=id)
+        form = ClienteForm(instance=cliente)
+        title = 'Cliente'
+
+    elif(tabela == 'grafo'):
+        grafo = get_object_or_404(Grafo, aresta_n=id)
+        form = GrafoForm(instance=grafo)
+        title = 'Grafo'
+
+    if(request.method == 'POST'):
+        if(title == 'Carro'):
+            form = CarroForm(request.POST, instance=carro)
+            form.save()
+            return redirect('/tabelas')
+        elif(title == 'Cliente'):
+            form = ClienteForm(request.POST, instance=cliente)
+            form.save()
+            return redirect('/tabelas')
+        elif(title == 'Grafo'):
+            form = GrafoForm(request.POST, instance=grafo)
+            form.save()
+            return redirect('/tabelas')
+
+    else:
+        return render(request, 'app/edit.html', {'form': form, 'title': title})
+
+def delete(request,tabela, id):
+    if(tabela == 'carro'):
+        carro = get_object_or_404(Carro, carro_id=id)
+        carro.delete()
+
+    elif(tabela == 'cliente'):
+        cliente = get_object_or_404(Cliente, cliente_id=id)
+        cliente.delete()
+
+    elif(tabela == 'grafo'):
+        grafo = get_object_or_404(Grafo, aresta_n=id)
+        grafo.delete()
+
+    messages.info(request, 'Tarefa deletada com sucesso.')
+
+    return redirect('/tabelas')
+
+def adicionar(request, tabela):
+    if(request.method == "POST"):
+        if(tabela == 'carro'):
+            form = C_CarroForm(request.POST)
+            form.save()
+
+        elif(tabela == 'cliente'):
+            form = C_ClienteForm(request.POST)
+            form.save()
+
+        elif(tabela == 'grafo'):
+            form = C_GrafoForm(request.POST)
+            form.save()
+
+        return redirect('/tabelas')
+    else:
+
+        if(tabela == 'carro'):
+            form = C_CarroForm()
+    
+        elif(tabela == 'cliente'):
+            form = C_ClienteForm()
+
+        elif(tabela == 'grafo'):
+            form = C_GrafoForm()
+
+        return render(request, 'app/adicionar.html', {'form': form, 'title':tabela})

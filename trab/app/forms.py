@@ -3,35 +3,53 @@ from .models import Carro, Cliente, Grafo
 
 def validacao(arq, n):
     return True
-    # lines = arq.readlines()
-    # if n == 1:
-    #     cabecalho = lines[0].split()
-    #     if(cabecalho != ['Carro_id','loc_carro_x','loc_carro_y','aresta_id']):
-    #         return False
-    #     for i in range(1,len(lines)+1):
-    #         vals = lines[i].split()
-    #         if len(vals) != 4:
-    #             return False
-    #         vals[0], vals[1], vals[2], vals[3] = int(vals[0]), float(vals[1]), float(vals[2]), int(vals[3])
-    # elif n == 2:
-    #     cabecalho = lines[0].split()
-    #     if(cabecalho != ['Cliente_id', 'loc_cliente_x', 'loc_cliente_y', 'dest_cliente_x', 'dest_cliente_y']):
-    #         return False
-    #     for i in range(1,len(lines)+1):
-    #         vals = lines[i].split()
-    #         if len(vals) != 5:
-    #             return False
-    #         vals[0], vals[1], vals[2], vals[3], vals[4] = int(vals[0]), float(vals[1]), float(vals[2]), float(vals[3]), float(vals[4])
-    # elif n == 3:
-    #     cabecalho = lines[0].split()
-    #     if(cabecalho != ['Aresta_n', 'v_origem', 'Loc_v_origem_x', 'Loc_v_origem_y', 'v_destino', 'Loc_v_destino_x', 'Loc_v_destino_y', 'Distância_km', 'Velocidade_km_h']):
-    #         return False
-    #     for i in range(1,len(lines)+1):
-    #         vals = lines[i].split()
-    #         if len(vals) != 9:
-    #             return False
-    #         vals[0], vals[1], vals[2], vals[3], vals[4], vals[5], vals[6], vals[7], vals[8] = int(vals[0]), int(vals[1]), float(vals[2]), float(vals[3]), int(vals[4]), float(vals[5]), float(vals[6]), float(vals[7]), int(vals[8])
+    lines = arq.readlines()
+    vals_id = []
+    if n == 1:
+        cabecalho = lines[0].split()
+        if(cabecalho != ['Carro_id','loc_carro_x','loc_carro_y','aresta_id']):
+            return False
+        for i in range(1,len(lines)):
+            vals = lines[i].split()
+            if len(vals) != 4:
+                return False
+            if (vals_id.count(vals[0]) == 0):
+                vals_id.append(vals[0]) 
+            else: 
+               return False  
+        return True 
 
+    elif n == 2:
+        cabecalho = lines[0].split()
+        if(cabecalho != ['Cliente_id', 'loc_cliente_x', 'loc_cliente_y', 'dest_cliente_x', 'dest_cliente_y']):
+            return False
+        for i in range(1,len(lines)):
+            vals = lines[i].split()
+            if len(vals) != 5:
+                return False
+            if (vals_id.count(vals[0]) == 0):
+               vals_id.append(vals[0]) 
+            else: 
+               return False  
+
+        return True
+    
+    
+    elif n == 3:
+        cabecalho = lines[0].split()
+        if(cabecalho != ['Aresta_n', 'v_origem', 'Loc_v_origem_x', 'Loc_v_origem_y', 'v_destino', 'Loc_v_destino_x', 'Loc_v_destino_y', 'Distância_km', 'Velocidade_km_h']):
+            return False
+        for i in range(1,len(lines)):
+            vals = lines[i].split()
+            if len(vals) != 9:
+                return False
+            if (vals_id.count(vals[0]) == 0):
+               vals_id.append(vals[0]) 
+            else: 
+               return False 
+
+        return True
+    
 def insere_dado(arq1, arq2, arq3):
     file_path = 'media'
     arquivo1 = open(file_path + '/' + arq1)
@@ -63,3 +81,33 @@ def insere_dado(arq1, arq2, arq3):
                                     distancia_km = float(val[7]), velocidade_km_h = int(val[8]))
             count +=1
     
+
+class CarroForm(forms.ModelForm):
+    class Meta:
+        model = Carro
+        fields = ('loc_carro_x', 'loc_carro_y', 'aresta_id')
+
+class ClienteForm(forms.ModelForm):
+    class Meta:
+        model = Cliente
+        fields = ('loc_cliente_x', 'loc_cliente_y', 'dest_cliente_x', 'dest_cliente_y')
+
+class GrafoForm(forms.ModelForm):
+    class Meta:
+        model = Grafo
+        fields = ('v_origem', 'loc_v_origem_x', 'loc_v_origem_y', 'v_destino', 'loc_v_destino_x', 'loc_v_destino_y', 'distancia_km', 'velocidade_km_h')
+
+class C_CarroForm(forms.ModelForm):
+    class Meta:
+        model = Carro
+        fields = ('carro_id','loc_carro_x', 'loc_carro_y', 'aresta_id')
+
+class C_ClienteForm(forms.ModelForm):
+    class Meta:
+        model = Cliente
+        fields = ('cliente_id', 'loc_cliente_x', 'loc_cliente_y', 'dest_cliente_x', 'dest_cliente_y')
+
+class C_GrafoForm(forms.ModelForm):
+    class Meta:
+        model = Grafo
+        fields = ('aresta_n','v_origem', 'loc_v_origem_x', 'loc_v_origem_y', 'v_destino', 'loc_v_destino_x', 'loc_v_destino_y', 'distancia_km', 'velocidade_km_h')
