@@ -27,7 +27,7 @@
         <div class="nav_buttons">
           <a class="button_nav" href="/"><label>Upload de Arquivos</label></a>
           <a class="button_nav" href="/tabelas"><label>Tabelas</label></a>
-          <a class="button_nav" href="/simulacao/grafo"
+          <a class="button_nav" href="/simulacao/0/0"
             ><label>Simulação</label></a
           >
         </div>
@@ -36,7 +36,8 @@
     <div class="page-home animate-up">
       <main class="simulacao">
         <div class="grafo">
-          <img src="{% static 'images' %}/{{imagem}}.png" alt="Foto do grafo" />
+          <!-- <img src="{% static 'images' %}/{{imagem}}.png" alt="Foto do grafo" /> -->
+          <iframe src="{% static 'images' %}/grafo.html" height="750" width="1000" style="border: none;" ></iframe>
         </div>
       </main>
     </div>
@@ -46,19 +47,19 @@
           {% for cliente in clientes %}
           <li style="display: flex">
             <a class="clients">Cliente {{cliente.cliente_id}}</a>
-            <a class="clients" href="/simulacao/c{{cliente.cliente_id}}g1"
+            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/1"
               >Escolha n1</a
             >
-            <a class="clients" href="/simulacao/c{{cliente.cliente_id}}g2"
+            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/2"
               >Escolha n2</a
             >
-            <a class="clients" href="/simulacao/c{{cliente.cliente_id}}g3"
+            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/3"
               >Escolha n3</a
             >
-            <a class="clients" href="/simulacao/c{{cliente.cliente_id}}g4"
+            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/4"
               >Escolha n4</a
             >
-            <a class="clients" href="/simulacao/c{{cliente.cliente_id}}g5"
+            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/5"
               >Escolha n5</a
             >
           </li>

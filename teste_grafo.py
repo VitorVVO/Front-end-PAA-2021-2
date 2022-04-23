@@ -1,6 +1,8 @@
 #essa pra fazer o grafo
+from operator import length_hint
 import networkx as nx
 import matplotlib.pyplot as plt
+from pyvis.network import Network
 
 import pandas as pd
 
@@ -41,12 +43,20 @@ for aresta in G.edges:
     else:
         list_value.append('gray')
 
-df = pd.DataFrame({'from':list_no_origem, 'to':list_no_dest, 'value':list_value})
+df = pd.DataFrame({'from':list_no_origem, 'to':list_no_dest, 'color':list_value})
 
 #plotar grafo com os pesos escritos e cores
 
 pos = nx.spring_layout(G)
-nx.draw(G, pos, with_labels=True, edge_color=df['value'], node_color = 'skyblue')
+nx.draw(G, pos, with_labels=True, edge_color=df['color'], node_color = 'skyblue')
 #nx.draw_networkx_edge_labels(G, pos)
 plt.savefig("./trab/app/static/images/Graph.png", format="PNG")
 #plt.show()
+nt = Network("500px", "500px")
+nt.from_nx(G)
+for i in nt.edges:
+    print(i)
+    
+
+nt.show_buttons()    
+nt.show('alo.html')

@@ -7,6 +7,7 @@ from django.contrib import messages
 
 from .forms import *
 from .models import *
+from .grafo import *
 
 # Create your views here.
 
@@ -42,9 +43,10 @@ def tabelas(request):
 
     return render(request, 'app/tabelas.html', {'carros':carros, 'clientes':clientes, 'grafos': grafos})
 
-def simulacao(request, imagem):
+def simulacao(request, caminho, cliente):
     clientes = Cliente.objects.all().order_by('cliente_id')
-    return render(request, 'app/simulacao.html', {'imagem':imagem, 'clientes':clientes})
+    c_grafo(cliente, caminho)
+    return render(request, 'app/simulacao.html', {'cliente':cliente,'caminho': caminho, 'clientes':clientes})
 
 
 def edit(request, tabela, id):
