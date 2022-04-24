@@ -1,0 +1,5 @@
+venv
+*.txt
+trab/app/__pycache__/
+trab/app/migrations/__pycache__/
+trab/trab/__pycache__/
