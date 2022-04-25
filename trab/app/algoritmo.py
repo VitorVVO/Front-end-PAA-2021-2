@@ -30,11 +30,8 @@ class Cliente_info:
 
     def __str__(self):
         return f"""Cliente {self.id} {"" if self.p1 == None else f"em {self.p1}"}"""
-        # return f"Cliente {self.id} -> loc = {self.aresta_local}, dest = {self.aresta_destino}"        
-        return f"Cliente {self.id} -> loc = {self.get_loc()}, dest = {self.get_dest()}"
 
     def __repr__(self) -> str:
-        # return f"Cliente {self.id} p {self.my_node} d {self.no_destino}"
         return self.__str__()
 
 class Carro_info:
@@ -67,14 +64,7 @@ def make_graph():
     attr_nos = dict()
 
     for a in arestas:
-        # a_temp = (a.v_origem, a.v_destino, {'id': a.aresta_n, 'veloc': a.velocidade_km_h, 'weight' : a.distancia_km / a.velocidade_km_h * 60, "tem_carro" : False, 
-        # "cliente_partida" : dict(), "cliente_destino" : dict(), "lista_carros": dict()}) # <- Lista de carros e clientes
-
-        # Dados dos vertices
-        # attr_nos[a.v_origem] = {'x': a.loc_v_origem_x, 'y' : a.loc_v_origem_y}
-        # attr_nos[a.v_destino] = {'x': a.loc_v_destino_x, 'y' : a.loc_v_destino_y}
-
-
+        
         a_temp = (a.v_origem, a.v_destino, {'id': a.aresta_n, 'veloc': a.velocidade_km_h, 'weight' : a.distancia_km / a.velocidade_km_h * 60, 
         "distancia": a.distancia_km})
         lista_arestas.append(a_temp)
@@ -207,6 +197,28 @@ def get_novo_node_num(mapa: nx.DiGraph):
 
     return novo_no_id
 
+def get_aresta_proxima(mapa: nx.DiGraph, x, y):
+
+    point = (x, y)
+    partida_cliente = (x, y)
+    partida_cliente = (partida_cliente[0], partida_cliente[1], 10**100)
+    aresta_partida = -1 # Contem o id da aresta em que o ponto sera marcado
+
+    # print(qual, cl)
+
+    for aresta in mapa.edges(data=True):
+        p1 = (mapa.nodes[aresta[0]]['x'], mapa.nodes[aresta[0]]['y'])
+        p2 = (mapa.nodes[aresta[1]]['x'], mapa.nodes[aresta[1]]['y'])
+
+        temp = obter_ponto_cliente(point, p1, p2)
+
+        # print(temp, aresta[2]['id'])
+        if temp[-1] < partida_cliente[-1]:
+            partida_cliente = temp
+            aresta_partida = aresta[2]['id']
+
+    return aresta_partida, partida_cliente[0], partida_cliente[1]
+
 def marcar_carros(mapa: nx.DiGraph):
     """ Retorna o mapa e uma lista de carros, com os dados de cada carro """
 
@@ -214,7 +226,50 @@ def marcar_carros(mapa: nx.DiGraph):
 
     lista_carros = []
     for car in carros:
+        
+        # Pegando os identificadores das arestas
         aresta_cd = get_aresta_ids(mapa)
+
+        aresta_id, x, y = get_aresta_proxima(mapa, car.loc_x, car.loc_y)
+        car.aresta_id = aresta_id
+        car.loc_x = x
+        car.loc_y = y
+
+        novo_no_id = get_novo_node_num(mapa)
+
+        # Os vertices de inicio e fim da aresta
+        init = aresta_cd[car.aresta_id][0]
+        end = aresta_cd[car.aresta_id][1]
+
+        car.my_node = novo_no_id        
+
+        # Obtendo atributos das novas arestas
+        n1_aresta_att, n2_aresta_att = split_attributes(mapa, aresta=(init, end),
+        x=car.loc_x, y=car.loc_y)
+        
+        # Obtendo dados do novo node
+        node_att = {'x': car.loc_x, 'y': car.loc_y, 'type': 'carro', 'type_id': car.id}
+
+        # Atualizando o grafo
+        mapa = add_novo_node(mapa, aresta = (init, end), novo_node_num=car.my_node, 
+        node_att=node_att, a1_att=n1_aresta_att, a2_att=n2_aresta_att)
+
+        lista_carros.append(car)
+
+    return (mapa, lista_carros)
+
+
+def marcar_carros1(mapa: nx.DiGraph):
+    """ Retorna o mapa e uma lista de carros, com os dados de cada carro """
+
+    carros = get_carros()
+
+    lista_carros = []
+    for car in carros:
+        #car = Carro_info()
+        aresta_cd = get_aresta_ids(mapa)
+
+        # aresta = get_aresta_proxima(mapa, car.loc_x, car.loc_y)
 
         novo_no_id = get_novo_node_num(mapa)
 
@@ -264,7 +319,7 @@ def marcar_carros(mapa: nx.DiGraph):
 def add_novo_node(mapa: nx.DiGraph, aresta: tuple, novo_node_num: int, node_att: dict, a1_att: dict, a2_att: dict):
         
     init, end = aresta    
-    mapa.remove_edge(*aresta)
+    mapa.remove_edge(aresta[0], aresta[1])
 
     mapa.add_node(novo_node_num)
     mapa.nodes[novo_node_num].update(node_att)
@@ -299,6 +354,13 @@ def split_attributes(mapa: nx.DiGraph, aresta: tuple, x: float, y: float):
     n1_aresta_att["weight"] = d1 / n1_aresta_att['veloc'] * 60
     n2_aresta_att['weight'] = d2 / n2_aresta_att['veloc'] * 60
 
+    ids = mapa.edges.data('id')
+    
+    ids = [i[2] for i in ids] 
+    max_id = sorted(ids)[-1] + 1
+    n1_aresta_att['id'] = max_id
+    n2_aresta_att['id'] = max_id + 1
+
     return n1_aresta_att, n2_aresta_att
 
 def marcar_clientes(mapa: nx.DiGraph):
@@ -309,27 +371,9 @@ def marcar_clientes(mapa: nx.DiGraph):
 
     lista_clientes = []
     for c in clientes:
-        # Marcando o ponto de partida 
-        # p_localizacao = marcar_ponto_cliente(c, mapa, qual = 'loc')
-        # aresta_idx = get_aresta(p_localizacao[0], mapa)
-        # mapa.edges[ aresta_idx[0], aresta_idx[1] ]['cliente_partida'][c.id] = (c, p_localizacao)
-
-        # Marcando o ponto de destino
-        # p_destino = marcar_ponto_cliente(c, mapa, qual = 'dest')
-        # aresta_idx = get_aresta(p_destino[0], mapa)
-        # mapa.edges[ aresta_idx[0], aresta_idx[1] ]['cliente_destino'][c.id] = (c, p_destino)
-
-        # ------------------------------------------------------------------------------------------
-
-        # c = Cliente_info()
-        aresta_idxs = get_aresta_ids(mapa)
-
-        # Obtendo as arestas de ida/chegada
-        p_localizacao = marcar_ponto_cliente(c, mapa, qual = 'loc')
-        # p_destino = marcar_ponto_cliente(c, mapa, qual = 'dest')
         
-        c.p_local = p_localizacao[1]
-        # c.p_destino = p_destino[1]
+        aresta_idxs = get_aresta_ids(mapa)
+        
 
         # Marca o no do cliente no mapa
         node_cliente = get_novo_node_num(mapa)
@@ -338,17 +382,6 @@ def marcar_clientes(mapa: nx.DiGraph):
 
         mapa.add_node(node_cliente)
         mapa.nodes[node_cliente].update(node_cliente_att)
-
-        # Marca o no de partida no mapa
-        aresta = aresta_idxs[p_localizacao[0]]
-        n1_att, n2_att = split_attributes(mapa, aresta=aresta, 
-        x=c.p_local[0], y=c.p_local[1])
-
-        node_att = {'x': c.p_local[0], 'y': c.p_local[1], 'type': 'partida', 'type_id': c.id}
-        
-        c.node_loc = get_novo_node_num(mapa)
-        mapa = add_novo_node(mapa, aresta, novo_node_num=c.node_loc, 
-        node_att=node_att, a1_att=n1_att, a2_att=n2_att)
 
         # Marca o no de destino no mapa
         aresta_idxs = get_aresta_ids(mapa) # Atualizando denovo
@@ -366,6 +399,23 @@ def marcar_clientes(mapa: nx.DiGraph):
         mapa = add_novo_node(mapa, aresta, novo_node_num=c.node_dest, 
         node_att=node_att, a1_att=n1_att, a2_att=n2_att)
 
+        # Marca o no de partida no mapa
+        p_localizacao = marcar_ponto_cliente(c, mapa, qual = 'loc')
+        c.p_local = p_localizacao[1]
+
+        aresta_idxs = get_aresta_ids(mapa) # Atualizando denovo
+
+        aresta = aresta_idxs[p_localizacao[0]]
+        n1_att, n2_att = split_attributes(mapa, aresta=aresta, 
+        x=c.p_local[0], y=c.p_local[1])
+
+        node_att = {'x': c.p_local[0], 'y': c.p_local[1], 'type': 'partida', 'type_id': c.id}
+        
+        c.node_loc = get_novo_node_num(mapa)
+        mapa = add_novo_node(mapa, aresta, novo_node_num=c.node_loc, 
+        node_att=node_att, a1_att=n1_att, a2_att=n2_att)
+
+        
         lista_clientes.append(c)
 
 
@@ -374,83 +424,99 @@ def marcar_clientes(mapa: nx.DiGraph):
 
 class caminho_info:
 
-    def __init__(self) -> None:
+    def __init__(self, caminho: list) -> None:
         self.caminho = []
         self.tempo = 0
+        self.distancia = 0
         
-    def calcular_distancia_caminho(self, mapa: nx.DiGraph):
+    def calcular_dist_tempo_caminho(self, mapa: nx.DiGraph):
         dist = 0
+        tempo = 0
 
-        for node, idx in enumerate(self.caminho):
+        for idx, node in enumerate(self.caminho):
             if idx < len(self.caminho) - 1:
                 dist += mapa[node][ self.caminho[idx + 1] ]['distancia']
-
+                tempo += mapa[node][self.caminho[idx + 1]]['weight']
             else:
                 pass
-
-        return dist
+        
+        self.tempo = tempo; self.distancia = dist
 
 def obter_dist(p1: tuple, p2: tuple):
     return sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
 
-def listar_carros(mapa: nx.DiGraph, lista_carros: list, lista_clientes: list):
-    """ Lista os carros e suas distancias de todos os clientes. """
+def get_node_carro(mapa: nx.DiGraph, id_cliente: int, lista_carros: list, lista_clientes: list):
 
     carros_info = dict() # Cada posicao, um carro, e pra cada carro, pega a distancia do cliente 
 
-    for carro in lista_carros:
-        # carro = Carro_info()
+    def obter_tempo(mapa: nx.DiGraph, caminho: list):
+        tempo = 0
+        for idx, node in enumerate(caminho):
+            if idx < len(caminho) - 1:
+                tempo += mapa[node][caminho[idx + 1]]['weight']
+            else:
+                pass
+        return tempo
 
-        # my_loc = (carro.loc_x, carro.loc_y)
+    cliente = None
+    for c in lista_clientes:
 
-        # Tempo, nao distancia
-        # my_distance = obter_dist(my_loc, (carro.loc_x, carro.loc_y)) / mapa[carro.aresta_local[0]][carro.aresta_local[1]]['veloc'] * 60
-
-        distance, shortest_distance, parent = dijkstra(mapa, carro.my_node)
-
-        carros_info[carro.id] = dict()
-        for cliente in lista_clientes:
-            # cliente = Cliente_info()
-
-            # cliente_loc = (cliente.p_local[1][0], cliente.p_local[1][1])
-
-            # Tempo, nao distancia
-            # client_dist = obter_dist((mapa.nodes[cliente.aresta_local[0]]['x'], mapa.nodes[cliente.aresta_local[0]]['y']), cliente_loc) / mapa[cliente.aresta_local[0]][cliente.aresta_local[1]]['veloc'] * 60
-
-            cam_info = caminho_info()
-            cam_info.caminho = backtrace(parent, carro.my_node, cliente.node_loc)
-            cam_info.tempo = shortest_distance[cliente.node_loc]
-
-            carros_info[carro.id][cliente.id] = cam_info
-
-    return (lista_carros, carros_info)
-
-
-def calcular_rota_cliente(mapa: nx.DiGraph, cl : Cliente_info):
-
-    distance, shortest_distance, caminho = dijkstra(mapa, cl.aresta_local[1], cl.aresta_destino[0])
-    cliente_loc = (cl.p_local[1][0], cl.p_local[1][1])
-    cliente_dest = (cl.p_destino[1][0], cl.p_destino[1][1])
-
-    # Tempo, nao distancia
-    dist1 = obter_dist(cliente_loc, (mapa.nodes[cl.aresta_local[1]]['x'], mapa.nodes[cl.aresta_local[1]]['y'])) / mapa[cl.aresta_local[0]][cl.aresta_local[1]]['veloc'] * 60
-    dist2 = obter_dist((mapa.nodes[cl.aresta_destino[0]]['x'], mapa.nodes[cl.aresta_destino[0]]['y']), cliente_dest) / mapa[cl.aresta_destino[0]][ cl.aresta_destino[1]]['veloc'] * 60
-
-    # print(cl.aresta_local, mapa[cl.aresta_local[0]][cl.aresta_local[1]]['veloc'])
-    # print(cl.aresta_destino, mapa[cl.aresta_destino[0]][ cl.aresta_destino[1]]['veloc'])
-    # print("a ",cl.id, dist1, dist2) # a  543 2.7744870135828243 2.6879645495417797
-    # a  443 2.7744870135828243 4.704899322409682
-    # dist1 = dist2 = 0
-
-    distancia_real = shortest_distance[cl.aresta_destino[0]] + dist1 + dist2
-
-    return (caminho, distancia_real)
-
-
-def calcular_rotas(mapa: nx.DiGraph, lista_clientes: list):
+        if c.id == id_cliente:
+            cliente = c
+            break
     
-    for cliente in lista_clientes:
-        cam, tempo = calcular_rota_cliente(mapa, cliente)
+    if cliente == None:
+        raise Exception(f"Cliente {id_cliente} nao encontrado!")
 
-        print(cliente)
-        print(cam, tempo)
+    menor_tempo = 1000000000000000000000000
+    carro_cliente = None
+    for carro in lista_carros:
+
+        caminho = dijkstra(mapa, origem=carro.my_node, destino=cliente.node_loc)
+
+        tempo = obter_tempo(mapa, caminho)
+        if tempo < menor_tempo:
+            menor_tempo = tempo
+            carro_cliente = carro
+
+
+    return carro_cliente.id
+
+
+def get_node_carro2(mapa: nx.DiGraph, id_cliente: int, lista_carros: list, lista_clientes: list):
+
+    carros_info = dict() # Cada posicao, um carro, e pra cada carro, pega a distancia do cliente 
+
+    def obter_tempo(mapa: nx.DiGraph, caminho: list):
+        tempo = 0
+        for idx, node in enumerate(caminho):
+            if idx < len(caminho) - 1:
+                tempo += mapa[node][caminho[idx + 1]]['weight']
+            else:
+                pass
+        return tempo
+
+    cliente = None
+    for c in lista_clientes:
+
+        if c.id == id_cliente:
+            cliente = c
+            break
+    
+    if cliente == None:
+        raise Exception(f"Cliente {id_cliente} nao encontrado!")
+
+    menor_tempo = 1000000000000000000000000
+    carro_cliente = None
+    for carro in lista_carros:
+
+        caminho = dijkstra(mapa, origem=carro.my_node, destino=cliente.node_loc)
+
+        tempo = obter_tempo(mapa, caminho)
+        if tempo < menor_tempo:
+            menor_tempo = tempo
+            carro_cliente = carro
+
+
+    return carro_cliente.my_node
+

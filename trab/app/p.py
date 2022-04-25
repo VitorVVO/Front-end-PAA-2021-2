@@ -1,75 +1,81 @@
 import networkx as nx
-# import pandas as pd
-import matplotlib.pyplot as plt
-from queue import PriorityQueue
-from math import inf
+import copy as cp
 
-# tabela = pd.read_csv("paa_arquivo_proj_grafo.txt", delimiter=" ")
-# tabela['tempo_minutos'] = (tabela['Distância_km'] / tabela['Velocidade_km_h']) * 60
-# pd.set_option('display.max_columns', 10)
-# print(tabela)
+def backtrace(pai, start, end):
+    caminho = [end]
+    while caminho[-1] != start:
+        caminho.append(pai[caminho[-1]])
+    caminho.reverse()
+    return caminho
 
+def dijkstra(grafo_in: nx.DiGraph, origem, destino=None, weight='weight'):
 
-# grafo = nx.from_pandas_edgelist(tabela, source="v_origem", target="v_destino", edge_key="Aresta_n", edge_attr=True)
-# nx.draw_networkx(grafo, with_labels=True)
-# plt.show()
+    fila = []
+    visitado = {}
+    distancia = {}
+    menor_distancia = {}
+    pai = {}
+    caminho = []
 
-def backtrace(parent, start, end):
-    path = [end]
-    while path[-1] != start:
-        path.append(parent[path[-1]])
-    path.reverse()
-    return path
+    for node in range(1, len(grafo_in) + 1):
+        distancia[node] = None
+        visitado[node] = False
+        pai[node] = None
+        menor_distancia[node] = float("inf")
 
-# print (range(len(grafo)-1))
+    fila.append(origem)
+    distancia[origem] = 0
+    while len(fila) != 0:
+        corrente = fila.pop(0)
+        visitado[corrente] = True
+        if corrente == destino:
+            caminho = backtrace(pai, origem, destino)
+        for neighbor in grafo_in.successors(corrente):
+            if visitado[neighbor] == False:
+                distancia[neighbor] = distancia[corrente] + grafo_in[corrente][neighbor]['weight']
 
-def dijkstra(graph: nx.DiGraph, source, target = None):
-    queue = []
-    visited = {}
-    distance = {}
-    shortest_distance = {}
-    parent = {}
-
-    for node in range(1, len(graph)+1):
-        distance[node] = None
-        visited[node] = False
-        parent[node] = None
-        shortest_distance[node] = float("inf")
-
-    queue.append(source)
-    distance[source] = 0
-    while len(queue) != 0:
-        current = queue.pop(0)
-        visited[current] = True
-        if current == target:
-            caminho = backtrace(parent, source, target)
-        
-            # break
-        for neighbor in graph.successors(current):
-            if visited[neighbor] == False:
-                # print(graph[current, neighbor])
-                # distance[neighbor] = distance[current] + 1
-                distance[neighbor] = distance[current] + graph[current][neighbor]['weight']
-
-                if distance[neighbor] < shortest_distance[neighbor]:
-                    shortest_distance[neighbor] = distance[neighbor]
-                    parent[neighbor] = current
-                    queue.append(neighbor)
-
-
-    # print(caminho)
-    # print("distancia:",  distance)
-    # print("menor d", shortest_distance)
-    # print("parent", parent)
-    # print("target", target)
-    # return 
-    if target == None:
-        return (distance, shortest_distance, parent) # Se for assim, calcula o caminho usando backtrace
-        
+                if distancia[neighbor] < menor_distancia[neighbor]:
+                    menor_distancia[neighbor] = distancia[neighbor]
+                    pai[neighbor] = corrente
+                    fila.append(neighbor)
+    if destino == None:
+        # Se for assim, calcula o caminho usando backtrace
+        return (pai)
     else:
-        return (distance, shortest_distance, caminho)
+        return (caminho)
 
-# dijkstra(grafo,1,6)
-# nx.draw(grafo)
-# nx.draw_networkx(grafo, with_labels=True)
-# plt.show()
+
+def caminhos_mais_curtos(G, origem, destino, k=1, weight='weight'):
+    A = [dijkstra(G, origem, destino)]
+    A_peso = [sum([G[A[0][l]][A[0][l + 1]]['weight'] for l in range(len(A[0]) - 1)])]
+    B = []
+
+    for i in range(1, k):
+        for j in range(0, len(A[-1]) - 1):
+            Gcopy = cp.deepcopy(G)
+            no_expurgo = A[-1][j]
+            caminho_raiz = A[-1][:j + 1]
+            for caminho in A:
+                if caminho_raiz == caminho[0:j + 1] and len(caminho) > j:
+                    if Gcopy.has_edge(caminho[j], caminho[j + 1]):
+                        Gcopy.remove_edge(caminho[j], caminho[j + 1])
+                    if Gcopy.has_edge(caminho[j + 1], caminho[j]):
+                        Gcopy.remove_edge(caminho[j + 1], caminho[j])
+            for n in caminho_raiz:
+                if n != no_expurgo:
+                    Gcopy.remove_node(n)
+            caminho_expurgo = dijkstra(Gcopy, no_expurgo, destino)
+            if len(caminho_expurgo) == 0:
+                continue
+            else:
+                caminho_total = caminho_raiz + caminho_expurgo[1:]
+                if caminho_total not in B:
+                    B += [caminho_total]
+        if len(B) == 0:
+            break
+        B_peso = [sum([G[caminho[l]][caminho[l + 1]]['weight'] for l in range(len(caminho) - 1)]) for caminho in B]
+        B = [p for _, p in sorted(zip(B_peso, B))]
+        A.append(B[0])
+        A_peso.append(sorted(B_peso)[0])
+        B.remove(B[0])
+    return A, A_peso

@@ -8,6 +8,8 @@ from django.contrib import messages
 from .forms import *
 from .models import *
 from .grafo import *
+from .algoritmo import *
+from .p import *
 
 # Create your views here.
 
@@ -30,8 +32,13 @@ def home(request):
             name3 = fs.save(uploaded_file.name, uploaded_file)
             arq3 = name3
 
-        insere_dado(arq1, arq2, arq3)
-        return tabelas(request)
+        if(arq1 == 0 or arq2 == 0 or arq3 == 0):
+            messages.warning(request, 'Foram encontrados inconsistências no grafo, por favor corrigir.')
+        else:
+            if(insere_dado(arq1, arq2, arq3) == True):
+                return tabelas(request)
+            else:
+                messages.warning(request, 'Foram encontrados inconsistências no grafo, por favor corrigir.')
 
     return render(request, 'app/upload.html')
     
@@ -43,10 +50,62 @@ def tabelas(request):
 
     return render(request, 'app/tabelas.html', {'carros':carros, 'clientes':clientes, 'grafos': grafos})
 
-def simulacao(request, caminho, cliente):
+def simulacao(request, cliente, caminho):
     clientes = Cliente.objects.all().order_by('cliente_id')
-    c_grafo(cliente, caminho)
-    return render(request, 'app/simulacao.html', {'cliente':cliente,'caminho': caminho, 'clientes':clientes})
+    grafo = make_graph()
+
+    grafo, lista_carros = marcar_carros(grafo)
+    grafo, lista_clientes = marcar_clientes(grafo)
+
+    id = cliente
+
+    try:
+        tempo_caminho = c_grafo(caminho, cliente, grafo, lista_carros, lista_clientes)
+    except:
+        messages.warning(request, 'Caminho inexistente')
+        tempos_i, soma, count, tempos_carro_i, soma2, count2 = [], 0, 0, [], 0, 0
+        for i in lista_clientes:
+            carro_cliente = get_node_carro2(grafo, i.id, lista_carros, lista_clientes)
+            caminhos, tempos = caminhos_mais_curtos(grafo, i.node_loc, i.node_dest, k=5, weight='weight')
+            caminhos2, tempos_carro = caminhos_mais_curtos(grafo, carro_cliente, i.node_loc, k=5, weight='weight')
+            tempos_i.append(tempos[0])
+            tempos_carro_i.append(tempos_carro[0])
+
+        for i in tempos_i:
+            if i != 0:
+                soma += i
+                count += 1
+        
+        for i in tempos_carro_i:
+            if i != 0:
+                soma2 += i
+                count2 += 1
+        
+        return render(request, 'app/simulacao.html', {'cliente':cliente,'caminho': 0, 'clientes':clientes, 'id':0, 'tempo_caminho':0,
+                                                      'media_p':round(soma/count), 'q_clientes': count, 'media_c':round(soma2/count2)})
+
+    tempos_i, soma, count, tempos_carro_i, soma2, count2 = [], 0, 0, [], 0, 0
+    for i in lista_clientes:
+        carro_cliente = get_node_carro2(grafo, i.id, lista_carros, lista_clientes)
+        caminhos, tempos = caminhos_mais_curtos(grafo, i.node_loc, i.node_dest, k=5, weight='weight')
+        caminhos2, tempos_carro = caminhos_mais_curtos(grafo, carro_cliente, i.node_loc, k=5, weight='weight')
+        tempos_i.append(tempos[0])
+        tempos_carro_i.append(tempos_carro[0])
+
+    for i in tempos_i:
+        if i != 0:
+            soma += i
+            count += 1
+    
+    for i in tempos_carro_i:
+        if i != 0:
+            soma2 += i
+            count2 += 1
+    
+
+    return render(request, 'app/simulacao.html', {'cliente':cliente,'caminho': caminho, 'clientes':clientes, 'id':id, 
+                                                    'media_p':round(soma/count), 'q_clientes': count, 'tempo_caminho': round(tempo_caminho),
+                                                    'media_c':round(soma2/count2)})
 
 
 def edit(request, tabela, id):
@@ -94,8 +153,6 @@ def delete(request,tabela, id):
     elif(tabela == 'grafo'):
         grafo = get_object_or_404(Grafo, aresta_n=id)
         grafo.delete()
-
-    messages.info(request, 'Tarefa deletada com sucesso.')
 
     return redirect('/tabelas')
 

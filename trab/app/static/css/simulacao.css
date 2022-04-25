@@ -115,8 +115,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  
-  margin: 40px;
 }
 
 .info {
@@ -139,6 +137,9 @@ body {
   padding: 1rem;
   border: 0;
 
+  text-align: center;
+  justify-content: center;
+
   cursor: pointer;
 
   background: #a9d6e5;
@@ -154,6 +155,63 @@ body {
   margin-right: 2rem;
   margin-top: 2rem;
   margin-bottom: 2rem;
+}
 
-  padding-left: 2rem;
+.clients:hover{
+  transform: scale(1.1);
+  transition: all 0.3s;
+}
+
+.clients_dif{
+  width: 20%;
+  height: 100%;
+  padding: 1rem;
+  border: 0;
+
+  text-align: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  background: #89C2D9;
+
+  border-radius: 2rem;
+  color: rgb(6, 6, 6);
+
+  display: flex;
+
+  transition: background-color 0.2s;
+
+  margin-left: 2rem;
+  margin-right: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+
+.tabela_medias{
+  width: 100%;
+  border: 1px solid;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #DDD;
+  text-align: center;
+}
+
+.div_results{
+  padding: 4rem;
+  text-align: center;
+  justify-content: center;
+
+}
+
+.messages{
+  padding-top: 3rem;
+  text-align: center;
+  justify-content: center;
+  font-weight: bold;
+
 }

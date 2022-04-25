@@ -135,4 +135,16 @@
   .arq{
     font-size: 20px;
   }
+
+  .div_results{
+    padding: 4rem;
+    text-align: center;
+    justify-content: center;
+  }
   
+  .messages{
+    padding-top: 3rem;
+    text-align: center;
+    justify-content: center;
+    font-weight: bold;
+  }

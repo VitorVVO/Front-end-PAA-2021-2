@@ -12,6 +12,9 @@ def calcula_km_nos (km_aresta, x_aresta1, y_aresta1, x_aresta2, y_aresta2, x_emb
     Distancia_embarque_no1 = distancia_entre_2_pontos(x_embarque1, y_embarque1, x_aresta1, y_aresta1)
     Distancia_embarque_no2 = distancia_entre_2_pontos(x_embarque1, y_embarque1, x_aresta2, y_aresta2)
 
+    if Distancia_total_aresta == 0:
+        Distancia_total_aresta = 1
+
     # calcula os percentuais de destancia.
     percent_embarque_no1 = (Distancia_embarque_no1 / Distancia_total_aresta)
     percent_embarque_no2 = (Distancia_embarque_no2 / Distancia_total_aresta)

@@ -2,115 +2,123 @@ from django.urls import path
 from pyvis.network import Network
 import networkx as nx
 import os
+from .p import *
+from .algoritmo import *
 
-def inserircliente(grafo, cliente):
-    grafo.add_node(cliente['id'], value=1, 
-                    x = cliente['x'] * 200,
-                    y = cliente['y'] * 200,
-                    label='Cliente' + str(cliente['id']),
-                    shape='image',
-                    image='client.png',
-                    )
+def inserircliente(grafo, cliente, ex):
+    if(ex == 0):
+        grafo.add_node(cliente[0], value=1, 
+                        x = cliente[1]['x'] * 200,
+                        y = cliente[1]['y'] * -200,
+                        label='Cliente' + str(cliente[1]['type_id']),
+                        shape='image',
+                        image='client.png',
+                        )
+    else:
+        grafo.add_node(cliente[0], value=1, 
+                        x = cliente[1]['x'] * 200,
+                        y = cliente[1]['y'] * -200,
+                        label='Cliente' + str(cliente[1]['type_id']),
+                        shape='image',
+                        image='client.png',
+                        )
     return grafo
 
-def inserirvertice(grafo, vertice):
-    if(vertice['type'] == 'Carro'):
-        grafo.add_node(vertice['id'], value=1, 
-                    x = vertice['x'] * 200,
-                    y = vertice['y'] * 200,
-                    label='Carro' + str(vertice['id']),
+def inserirvertice(grafo, vertice, ex):
+    if(vertice[1]['type'] == 'carro'):
+        grafo.add_node(vertice[0], value=0.90, 
+                    x = vertice[1]['x'] * 200,
+                    y = vertice[1]['y'] * -200,
+                    label='Carro' + str(vertice[1]['type_id']),
                     shape='image',
-                    image='carro.png',
+                    image='carro_2.png',
+                    )
+    elif(vertice[1]['type'] == None):
+        grafo.add_node(vertice[0], value=0.8, 
+                    x = vertice[1]['x'] * 200,
+                    y = vertice[1]['y'] * -200,
+                    label='No' + str(vertice[0]),
+                    shape ='dot',
+                    color = '#000000',
                     )
 
-    elif(vertice['type'] == 'Normal'):
-        grafo.add_node(vertice['id'], value=1, 
-                    x = vertice['x'] * 200,
-                    y = vertice['y'] * 200,
-                    label='No' + str(vertice['id']),
-                    shape ='dot',
-                    color = '#FFFFFF'
+    elif(vertice[1]['type'] == 'partida' and ex == 1):
+        grafo.add_node(vertice[0], value=0.8, 
+                    x = vertice[1]['x'] * 200,
+                    y = vertice[1]['y'] * -200,
+                    label=str("Partida" + str(vertice[1]['type_id'])),
+                    shape ='star',
+                    color = '#f7ff00'
+                    )
+    
+    elif(vertice[1]['type'] == 'destino' and ex == 1):
+        grafo.add_node(vertice[0], value=0.8, 
+                    x = vertice[1]['x'] * 200,
+                    y = vertice[1]['y'] * -200,
+                    label=str("Destino" + str(vertice[1]['type_id'])),
+                    shape ='star',
+                    color = '#FF0000',
                     )
 
-    elif(vertice['type'] == 'Origem'):
-        grafo.add_node("Origem", value=1, 
-                    x = vertice['x'] * 200,
-                    y = vertice['y'] * 200,
-                    label=str("Origem"),
-                    shape ='dot',
-                    color = '#00FF00'
+    elif(vertice[1]['type'] == 'partida' and ex == 0):
+        grafo.add_node(vertice[0], value=0.8, 
+                    x = vertice[1]['x'] * 200,
+                    y = vertice[1]['y'] * -200,
+                    hidden = True,
                     )
 
-    elif(vertice['type'] == 'Destino'):
-        grafo.add_node("Destino", value=1, 
-                    x = vertice['x'] * 200,
-                    y = vertice['y'] * 200,
-                    label=str("Destino"),
-                    shape ='dot',
-                    color = '#ADD8E6',
+    elif(vertice[1]['type'] == 'destino' and ex == 0):
+        grafo.add_node(vertice[0], value=0.8, 
+                    x = vertice[1]['x'] * 200,
+                    y = vertice[1]['y'] * -200,
+                    hidden = True,
                     )
     
     return grafo
 
+def inserircarro_c(grafo, vertice):
+    grafo.add_node(vertice[0], value=0.85, 
+                    x = vertice[1]['x'] * 200,
+                    y = vertice[1]['y'] * -200,
+                    label='Carro' + str(vertice[1]['type_id']),
+                    shape='image',
+                    image='carro.png',
+                    )
+    return grafo
+
 def inserirarestas(grafo, arestas):
     for i in arestas:
-        grafo.add_edge(i['from'], i['to'], color="#EE82EE")
+        grafo.add_edge(i[0], i[1], color = "#000000")
 
     return grafo
 
 def caminho(grafo, caminhos):
-    # for i in range(0, len(c)-1):
-    #     t = (c[i], c[i+1])
-    #     cam_final.append(t)
-    for i in caminhos:
+    cam_final = []
+    for i in range(0, len(caminhos)-1):
+        t = (caminhos[i], caminhos[i+1])
+        cam_final.append(t)
+
+    for i in cam_final:
         for j in grafo.edges:
             if(j['from'] == i[0] and j['to'] == i[1]):
                 j['color'] = "#F7A156"
     
     return grafo
 
-def c_grafo(caminho, cliente):
-    if(caminho == 'grafo'):
+def c_grafo(caminhoid, cliente, grafo, lista_carros, lista_clientes):
+    if(caminhoid == '0' and cliente == '0'):
         g = Network('700px', '900px', directed=True)
         g.toggle_drag_nodes(False)
         g.toggle_physics(False)
 
-        aresta1 = {'from':1, 'to':2, 
-                 'id': 1, 'veloc': 40, 
-                 'weight' : 3.1 / 40 * 60, 
-                 "distancia": 3.1}
-
-        aresta2 = {'from':2, 'to':3, 
-                 'id': 2, 'veloc': 35, 
-                 'weight' : 2.6 / 35 * 60, 
-                 "distancia": 2.6}
-
-        aresta3 = {'from':3, 'to':1, 
-                 'id': 3, 'veloc': 38, 
-                 'weight' : 5.2 / 38 * 60, 
-                 "distancia": 5.2}
-
-        arestas = [aresta1, aresta2, aresta3]
-
-        no1 = {'x': 2.2, 'y': 4.3, "type": 'Normal', 'id': 1}   
-
-        no2 = {'x': 5.1, 'y': 3.2, "type": 'Normal', 'id': 2}
-
-        no3 = {'x': 7.4, 'y': 4.4, "type": 'Normal', 'id': 3}
-
-        carro1 = {'x': 7.4, 'y': 4.4, "type": 'Carro', 'id': 53}
-
-        cliente1 = {'x': 5.0, 'y': 3.0, "type": 'Cliente', "id": 443}
-
-        destino = {'x': 2.7, 'y': 4.1, "type": 'Destino'}
-
-        nos = [no1, no2, no3, carro1, cliente1, destino]
+        nos = grafo.nodes(data=True)
+        arestas = grafo.edges(data=True)
 
         for i in nos:
-            if(i["type"] == 'Cliente'):
-                g = inserircliente(g, i)
+            if(i[1]['type'] == 'cliente'):
+                g = inserircliente(g, i, 0)
             else:
-                g = inserirvertice(g, i)
+                g = inserirvertice(g, i, 1)
 
         g = inserirarestas(g, arestas)
         diretorio = (os.path.dirname(os.path.realpath(__file__)))
@@ -121,53 +129,45 @@ def c_grafo(caminho, cliente):
             else:
                 dir = dir + i
         
-        dir = dir + '/static/images/grafo.html' 
+        dir = dir + '/static/images/c0g0.html' 
 
         g.save_graph(dir)
 
+        tempo = 0
+
+        return tempo
     else:
         g = Network('700px', '900px', directed=True)
-        g.toggle_drag_nodes(False)
+        g.toggle_drag_nodes(True)
         g.toggle_physics(False)
 
-        aresta1 = {'from':1, 'to':2, 
-                 'id': 1, 'veloc': 40, 
-                 'weight' : 3.1 / 40 * 60, 
-                 "distancia": 3.1}
-
-        aresta2 = {'from':2, 'to':3, 
-                 'id': 2, 'veloc': 35, 
-                 'weight' : 2.6 / 35 * 60, 
-                 "distancia": 2.6}
-
-        aresta3 = {'from':3, 'to':1, 
-                 'id': 3, 'veloc': 38, 
-                 'weight' : 5.2 / 38 * 60, 
-                 "distancia": 5.2}
-
-        arestas = [aresta1, aresta2, aresta3]
-
-        no1 = {'x': 2.2, 'y': 4.3, "type": 'Normal', 'id': 1}   
-
-        no2 = {'x': 5.1, 'y': 3.2, "type": 'Normal', 'id': 2}
-
-        no3 = {'x': 7.4, 'y': 4.4, "type": 'Normal', 'id': 3}
-
-        carro1 = {'x': 7.4, 'y': 4.4, "type": 'Carro', 'id': 53}
-
-        cliente1 = {'x': 5.0, 'y': 3.0, "type": 'Cliente', "id": 443}
-
-        destino = {'x': 2.7, 'y': 4.1, "type": 'Destino'}
-
-        nos = [no1, no2, no3, carro1, cliente1, destino]
-
-        for i in nos:
-            if(i["type"] == 'Cliente'):
-                g = inserircliente(g, i)
+        nos = grafo.nodes(data=True)
+        arestas = grafo.edges(data=True)
+        partida, destino = 0,0
+        a = get_node_carro(grafo, int(cliente), lista_carros, lista_clientes)
+        for i in nos:     
+            if(i[1]['type'] == 'cliente' and i[1]['type_id'] == int(cliente)):
+                g = inserircliente(g, i, 1)
             else:
-                g = inserirvertice(g, i)
+                if(i[1]['type'] == 'partida' and i[1]['type_id'] == int(cliente)):
+                    partida = i[0]
+                    g = inserirvertice(g, i, 1)
+                elif(i[1]['type'] == 'destino' and i[1]['type_id'] == int(cliente)):
+                    destino = i[0]
+                    g = inserirvertice(g, i, 1)
+                elif(i[1]['type'] == 'carro' and i[1]['type_id'] == a):
+                    g = inserircarro_c(g, i)
+                else:
+                    g = inserirvertice(g, i, 0)
+
 
         g = inserirarestas(g, arestas)
+        
+        caminhos, tempo = caminhos_mais_curtos(grafo, partida, destino, k=5, weight='weight')
+        
+        g = caminho(g, caminhos[int(caminhoid)-1])
+        
+        
         diretorio = (os.path.dirname(os.path.realpath(__file__)))
         dir =''
         for i in diretorio:
@@ -176,7 +176,8 @@ def c_grafo(caminho, cliente):
             else:
                 dir = dir + i
         
-        dir = dir + '/static/images/c' + cliente + 'g' + caminho + '.html'
+        dir = dir + '/static/images/c' + cliente + 'g' + caminhoid + '.html' 
 
         g.save_graph(dir)
 
+        return tempo[int(caminhoid)-1]

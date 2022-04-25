@@ -22,50 +22,73 @@
       <div class="nav_bar">
         <div class="nav_title">
           <img src="{% static 'images/map-marker.svg' %}" alt="Happy" />
-          <h1 class="title">Projeto PAA - Só os brabos</h1>
+          <h1 class="title">Projeto PAA</h1>
         </div>
         <div class="nav_buttons">
           <a class="button_nav" href="/"><label>Upload de Arquivos</label></a>
           <a class="button_nav" href="/tabelas"><label>Tabelas</label></a>
           <a class="button_nav" href="/simulacao/0/0"
-            ><label>Simulação</label></a
+          ><label>Simulação</label></a
           >
         </div>
       </div>
     </nav>
-    <div class="page-home animate-up">
-      <main class="simulacao">
-        <div class="grafo">
-          <!-- <img src="{% static 'images' %}/{{imagem}}.png" alt="Foto do grafo" /> -->
-          <iframe src="{% static 'images' %}/grafo.html" height="750" width="1000" style="border: none;" ></iframe>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+              <a class="{{ message.tags }}" style="text-align: center;">{{ message }}</a>
+            {% endfor %}
         </div>
-      </main>
-    </div>
-    <div class="page-home animate-up">
+        {% endif %}
+    <div>
+      <div class="page-home animate-up div_results">
+        <main class="simulacao">
+          <a>
+            Tempo do caminho (aproximado): {{tempo_caminho}} min
+          </a>
+          <div class="grafo">
+            <!-- <img src="{% static 'images' %}/{{imagem}}.png" alt="Foto do grafo" /> -->
+            <iframe src="{% static 'images' %}/c{{id}}g{{caminho}}.html" height="750" width="1000" style="border: none; margin-left: 6rem;" ></iframe>
+          </div>
+        </main>
+      </div>
+      <div class="page-home animate-up div_results">
       <main class="simulacao">
         <ul class="lista_clientes">
           {% for cliente in clientes %}
           <li style="display: flex">
-            <a class="clients">Cliente {{cliente.cliente_id}}</a>
-            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/1"
-              >Escolha n1</a
+            <a class="clients_dif">Cliente {{cliente.cliente_id}}</a>
+            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/1" style="text-decoration:none"
+              >Caminho 1</a
             >
-            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/2"
-              >Escolha n2</a
+            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/2" style="text-decoration:none"
+              >Caminho 2</a
             >
-            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/3"
-              >Escolha n3</a
+            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/3" style="text-decoration:none"
+              >Caminho 3</a
             >
-            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/4"
-              >Escolha n4</a
+            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/4" style="text-decoration:none"
+              >Caminho 4</a
             >
-            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/5"
-              >Escolha n5</a
+            <a class="clients" href="/simulacao/{{cliente.cliente_id}}/5" style="text-decoration:none"
+              >Caminho 5</a
             >
           </li>
           {% endfor %}
         </ul>
       </main>
+      <table class="tabela_medias">
+        <tr>
+          <th>Quantidade de Clientes</th>
+          <th>Tempo Médio de Espera</th>
+          <th>Tempo Médio de Trajeto</th>
+        </tr>
+        <tr>
+          <td>{{q_clientes}}</td>
+          <td>{{media_c}} min</td>
+          <td>{{media_p}} min</td>
+        </tr>
+      </table>
     </div>
   </body>
 </html>

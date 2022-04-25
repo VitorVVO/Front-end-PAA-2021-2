@@ -1,8 +1,8 @@
 from django import forms
 from .models import Carro, Cliente, Grafo
+import copy as cp
 
 def validacao(arq, n):
-    return True
     lines = arq.readlines()
     vals_id = []
     if n == 1:
@@ -17,7 +17,6 @@ def validacao(arq, n):
                 vals_id.append(vals[0]) 
             else: 
                return False  
-        return True 
 
     elif n == 2:
         cabecalho = lines[0].split()
@@ -31,8 +30,6 @@ def validacao(arq, n):
                vals_id.append(vals[0]) 
             else: 
                return False  
-
-        return True
     
     
     elif n == 3:
@@ -48,22 +45,31 @@ def validacao(arq, n):
             else: 
                return False 
 
-        return True
+    return True
     
 def insere_dado(arq1, arq2, arq3):
+    Cliente.objects.all().delete()
+    Carro.objects.all().delete()
+    Grafo.objects.all().delete()
     file_path = 'media'
     arquivo1 = open(file_path + '/' + arq1)
     arquivo2 = open(file_path + '/' + arq2)
     arquivo3 = open(file_path + '/' + arq3)
 
-    if(validacao(arquivo1, 1)):
+    a1 = open(file_path + '/' + arq1)
+    a2 = open(file_path + '/' + arq2)
+    a3 = open(file_path + '/' + arq3)
+
+    if(validacao(a1, 1) == True):
         count = 0
         for i in arquivo1:
             if(count != 0):
                 val = i.split()
                 Carro.objects.create(carro_id = int(val[0]), loc_carro_x = float(val[1]), loc_carro_y = float(val[2]) , aresta_id = int(val[3]))
             count +=1
-    if(validacao(arquivo2, 2)):
+    else:
+        return False
+    if(validacao(a2, 2) == True):
         count = 0
         for i in arquivo2:
             if(count != 0):
@@ -71,7 +77,9 @@ def insere_dado(arq1, arq2, arq3):
                 Cliente.objects.create(cliente_id = int(val[0]), loc_cliente_x = float(val[1]), loc_cliente_y = float(val[2]),
                                         dest_cliente_x = float(val[3]), dest_cliente_y = float(val[4]))
             count +=1
-    if(validacao(arquivo3, 3)):
+    else:
+        return False
+    if(validacao(a3, 3) == True):
         count = 0
         for i in arquivo3:
             if(count != 0):
@@ -80,6 +88,10 @@ def insere_dado(arq1, arq2, arq3):
                                     loc_v_origem_y = float(val[3]), v_destino = int(val[4]), loc_v_destino_x = float(val[5]), loc_v_destino_y = float(val[6]), 
                                     distancia_km = float(val[7]), velocidade_km_h = int(val[8]))
             count +=1
+    else:
+        return False
+
+    return True
     
 
 class CarroForm(forms.ModelForm):

@@ -22,17 +22,26 @@
     <nav class="nav_bar_back">
       <div class="nav_bar">
         <div class="nav_title">
-          <img src="{% static 'images/map-marker.svg' %}" alt="Happy">
-          <h1 class="title">Projeto PAA - Só os brabos</h1>
+          <img src="{% static 'images/map-marker.svg' %}">
+          <h1 class="title">Projeto PAA</h1>
         </div>
         <div class="nav_buttons">
           <a class="button_nav" href="/"><label>Upload de Arquivos</label></a>
           <a class="button_nav" href="/tabelas"><label>Tabelas</label></a>
-          <a class="button_nav" href="/simulacao/grafo"><label>Simulação</label></a>
+          <a class="button_nav" href="/simulacao/0/0"><label>Simulação</label></a>
         </div>
       </div>
     </nav>
-    <div class="page-home animate-up">
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+              <a class="{{ message.tags }}" style="text-align: center;">{{ message }}</a>
+            {% endfor %}
+        </div>
+      {% endif %}
+    
+    <div class="page-home animate-up div_results">
       <main class="uploads">
         <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
