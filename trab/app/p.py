@@ -17,7 +17,7 @@ def dijkstra(grafo_in: nx.DiGraph, origem, destino=None, weight='weight'):
     pai = {}
     caminho = []
 
-    for node in range(1, len(grafo_in) + 1):
+    for node in grafo_in.nodes:
         distancia[node] = None
         visitado[node] = False
         pai[node] = None
