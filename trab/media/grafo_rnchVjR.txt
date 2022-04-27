@@ -1,0 +1,2 @@
+Aresta_n v_origem Loc_v_origem_x Loc_v_origem_y v_destino Loc_v_destino_x Loc_v_destino_y Distância_km Velocidade_km_h
+1 2 15.96 13.33 1 12.28 16.83 26.0 80

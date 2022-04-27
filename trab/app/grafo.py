@@ -9,7 +9,7 @@ def inserircliente(grafo, cliente, ex):
     if(ex == 0):
         grafo.add_node(cliente[0], value=1, 
                         x = cliente[1]['x'] * 200,
-                        y = cliente[1]['y'] * -200,
+                        y = cliente[1]['y'] * 200,
                         label='Cliente' + str(cliente[1]['type_id']),
                         shape='image',
                         image='client.png',
@@ -17,7 +17,7 @@ def inserircliente(grafo, cliente, ex):
     else:
         grafo.add_node(cliente[0], value=1, 
                         x = cliente[1]['x'] * 200,
-                        y = cliente[1]['y'] * -200,
+                        y = cliente[1]['y'] * 200,
                         label='Cliente' + str(cliente[1]['type_id']),
                         shape='image',
                         image='client.png',
@@ -28,7 +28,7 @@ def inserirvertice(grafo, vertice, ex):
     if(vertice[1]['type'] == 'carro'):
         grafo.add_node(vertice[0], value=0.90, 
                     x = vertice[1]['x'] * 200,
-                    y = vertice[1]['y'] * -200,
+                    y = vertice[1]['y'] * 200,
                     label='Carro' + str(vertice[1]['type_id']),
                     shape='image',
                     image='carro_2.png',
@@ -36,7 +36,7 @@ def inserirvertice(grafo, vertice, ex):
     elif(vertice[1]['type'] == None):
         grafo.add_node(vertice[0], value=0.8, 
                     x = vertice[1]['x'] * 200,
-                    y = vertice[1]['y'] * -200,
+                    y = vertice[1]['y'] * 200,
                     label='No' + str(vertice[0]),
                     shape ='dot',
                     color = '#000000',
@@ -45,7 +45,7 @@ def inserirvertice(grafo, vertice, ex):
     elif(vertice[1]['type'] == 'partida' and ex == 1):
         grafo.add_node(vertice[0], value=0.8, 
                     x = vertice[1]['x'] * 200,
-                    y = vertice[1]['y'] * -200,
+                    y = vertice[1]['y'] * 200,
                     label=str("Partida" + str(vertice[1]['type_id'])),
                     shape ='star',
                     color = '#f7ff00'
@@ -54,7 +54,7 @@ def inserirvertice(grafo, vertice, ex):
     elif(vertice[1]['type'] == 'destino' and ex == 1):
         grafo.add_node(vertice[0], value=0.8, 
                     x = vertice[1]['x'] * 200,
-                    y = vertice[1]['y'] * -200,
+                    y = vertice[1]['y'] * 200,
                     label=str("Destino" + str(vertice[1]['type_id'])),
                     shape ='star',
                     color = '#FF0000',
@@ -63,14 +63,14 @@ def inserirvertice(grafo, vertice, ex):
     elif(vertice[1]['type'] == 'partida' and ex == 0):
         grafo.add_node(vertice[0], value=0.8, 
                     x = vertice[1]['x'] * 200,
-                    y = vertice[1]['y'] * -200,
+                    y = vertice[1]['y'] * 200,
                     hidden = True,
                     )
 
     elif(vertice[1]['type'] == 'destino' and ex == 0):
         grafo.add_node(vertice[0], value=0.8, 
                     x = vertice[1]['x'] * 200,
-                    y = vertice[1]['y'] * -200,
+                    y = vertice[1]['y'] * 200,
                     hidden = True,
                     )
     
@@ -79,7 +79,7 @@ def inserirvertice(grafo, vertice, ex):
 def inserircarro_c(grafo, vertice):
     grafo.add_node(vertice[0], value=0.85, 
                     x = vertice[1]['x'] * 200,
-                    y = vertice[1]['y'] * -200,
+                    y = vertice[1]['y'] * 200,
                     label='Carro' + str(vertice[1]['type_id']),
                     shape='image',
                     image='carro.png',
@@ -92,7 +92,7 @@ def inserirarestas(grafo, arestas):
 
     return grafo
 
-def caminho(grafo, caminhos):
+def caminho(grafo, caminhos, color):
     cam_final = []
     for i in range(0, len(caminhos)-1):
         t = (caminhos[i], caminhos[i+1])
@@ -101,7 +101,7 @@ def caminho(grafo, caminhos):
     for i in cam_final:
         for j in grafo.edges:
             if(j['from'] == i[0] and j['to'] == i[1]):
-                j['color'] = "#F7A156"
+                j['color'] = color
     
     return grafo
 
@@ -157,6 +157,7 @@ def c_grafo(caminhoid, cliente, grafo, lista_carros, lista_clientes):
                     g = inserirvertice(g, i, 1)
                 elif(i[1]['type'] == 'carro' and i[1]['type_id'] == a):
                     g = inserircarro_c(g, i)
+                    carro=i[0]
                 else:
                     g = inserirvertice(g, i, 0)
 
@@ -164,8 +165,10 @@ def c_grafo(caminhoid, cliente, grafo, lista_carros, lista_clientes):
         g = inserirarestas(g, arestas)
         
         caminhos, tempo = caminhos_mais_curtos(grafo, partida, destino, k=5, weight='weight')
+        caminho_c = dijkstra(grafo, carro, partida)
         
-        g = caminho(g, caminhos[int(caminhoid)-1])
+        g = caminho(g, caminho_c, '#1CBAA4')
+        g = caminho(g, caminhos[int(caminhoid)-1], '#FF6400')
         
         
         diretorio = (os.path.dirname(os.path.realpath(__file__)))

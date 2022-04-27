@@ -52,13 +52,13 @@ def insere_dado(arq1, arq2, arq3):
     Carro.objects.all().delete()
     Grafo.objects.all().delete()
     file_path = 'media'
-    arquivo1 = open(file_path + '/' + arq1)
-    arquivo2 = open(file_path + '/' + arq2)
-    arquivo3 = open(file_path + '/' + arq3)
+    arquivo1 = open(file_path + '/' + arq1, encoding='utf-8')
+    arquivo2 = open(file_path + '/' + arq2, encoding='utf-8')
+    arquivo3 = open(file_path + '/' + arq3, encoding='utf-8')
 
-    a1 = open(file_path + '/' + arq1)
-    a2 = open(file_path + '/' + arq2)
-    a3 = open(file_path + '/' + arq3)
+    a1 = open(file_path + '/' + arq1, encoding='utf-8')
+    a2 = open(file_path + '/' + arq2, encoding='utf-8')
+    a3 = open(file_path + '/' + arq3, encoding='utf-8')
 
     if(validacao(a1, 1) == True):
         count = 0
